@@ -1,4 +1,4 @@
-import { gfx, RenderComponent, Event as Event$1, Vec2, Node, game, director, macro, Color, Layers, Font, resources, Vec3, Rect, UITransform, UIOpacity, Component, Graphics, misc, Sprite, Size, view, ImageAsset, AudioClip, BufferAsset, AssetManager, Asset, assetManager, SpriteFrame, BitmapFont, sp, dragonBones, path, Label, LabelOutline, LabelShadow, SpriteAtlas, RichText, sys, EventMouse, EventTarget, Mask, math, isValid, View, AudioSourceComponent, EditBox, Texture2D } from 'cc';
+import { gfx, RenderComponent, Event as Event$1, Vec2, Node, game, director, macro, Color, Layers, Font, resources, UITransform, UIOpacity, Rect, Component, Vec3, Graphics, misc, Sprite, Size, view, BufferAsset, AssetManager, Asset, assetManager, Texture2D, SpriteFrame, BitmapFont, sp, dragonBones, ImageAsset, AudioClip, path, Label, LabelOutline, LabelShadow, RichText, SpriteAtlas, sys, EventMouse, EventTarget, Mask, math, isValid, View, AudioSourceComponent, EditBox } from 'cc';
 import { EDITOR } from 'cc/env';
 
 var ButtonMode;
@@ -236,7 +236,7 @@ const factors = [
     [gfx.BlendFactor.ONE, gfx.BlendFactor.ZERO],
     [gfx.BlendFactor.SRC_ALPHA, gfx.BlendFactor.ONE_MINUS_SRC_ALPHA],
     [gfx.BlendFactor.SRC_ALPHA, gfx.BlendFactor.ONE_MINUS_SRC_ALPHA],
-    [gfx.BlendFactor.SRC_ALPHA, gfx.BlendFactor.ONE_MINUS_SRC_ALPHA], //custom2
+    [gfx.BlendFactor.SRC_ALPHA, gfx.BlendFactor.ONE_MINUS_SRC_ALPHA],
 ];
 
 class Event extends Event$1 {
@@ -2937,27 +2937,11 @@ class GObject {
                 gear.dispose();
         }
     }
-    init() {
-        this._inited = true;
-        this.onInit();
-    }
-    onInit() {
-    }
-    onShown() {
-    }
-    onHide() {
-    }
     onEnable() {
-        if (!this._inited) {
-            this._inited = true;
-            this.init();
-        }
-        this.onShown();
     }
     onDisable() {
-        this.onHide();
     }
-    onUpdate(dt) {
+    onUpdate() {
     }
     onDestroy() {
     }
@@ -5110,7 +5094,7 @@ class UIPackage {
                     _instById[pkg.id] = pkg;
                     _instByName[pkg.name] = pkg;
                     if (pkg._path)
-                        _instByName[pkg._path] = pkg;
+                        _instById[pkg._path] = pkg;
                     if (onComplete != null)
                         onComplete(lastErr, pkg);
                 }
@@ -5462,8 +5446,19 @@ class UIPackage {
                     item.asset = this._bundle.get(item.file, ItemTypeToAssetType[item.type]);
                     if (!item.asset)
                         console.log("Resource '" + item.file + "' not found");
-                    else
-                        item.asset = item.asset._texture;
+                    else if (item.type == PackageItemType.Atlas) {
+                        const asset = item.asset;
+                        let tex = asset['_texture'];
+                        if (!tex) {
+                            tex = new Texture2D();
+                            tex.name = asset.nativeUrl;
+                            tex.image = asset;
+                        }
+                        item.asset = tex;
+                    }
+                    else {
+                        item.asset = item.asset;
+                    }
                 }
                 break;
             case PackageItemType.Font:
@@ -11001,13 +10996,11 @@ class GComponent extends GObject {
         }
     }
     onEnable() {
-        super.onEnable();
         let cnt = this._transitions.length;
         for (let i = 0; i < cnt; ++i)
             this._transitions[i].onEnable();
     }
     onDisable() {
-        super.onDisable();
         let cnt = this._transitions.length;
         for (let i = 0; i < cnt; ++i)
             this._transitions[i].onDisable();
@@ -11178,6 +11171,12 @@ class Window extends GComponent {
         else
             this._init();
     }
+    onInit() {
+    }
+    onShown() {
+    }
+    onHide() {
+    }
     doShowAnimation() {
         this.onShown();
     }
@@ -11209,18 +11208,14 @@ class Window extends GComponent {
         this.hide();
     }
     onEnable() {
-        let cnt = this._transitions.length;
-        for (let i = 0; i < cnt; ++i)
-            this._transitions[i].onEnable();
+        super.onEnable();
         if (!this._inited)
             this.init();
         else
             this.doShowAnimation();
     }
     onDisable() {
-        let cnt = this._transitions.length;
-        for (let i = 0; i < cnt; ++i)
-            this._transitions[i].onDisable();
+        super.onDisable();
         this.closeModalWait();
         this.onHide();
     }
@@ -11375,7 +11370,6 @@ class GRoot extends GComponent {
         return this._modalWaitPane && this._modalWaitPane.node.activeInHierarchy;
     }
     getPopupPosition(popup, target, dir, result) {
-        var _a, _b;
         let pos = result || new Vec2();
         var sizeW = 0, sizeH = 0;
         if (target) {
@@ -11388,14 +11382,12 @@ class GRoot extends GComponent {
             pos = this.getTouchPosition();
             pos = this.globalToLocal(pos.x, pos.y);
         }
-        const W = popup.pivotAsAnchor ? popup.width * (1 - ((_a = popup.node.getComponent(UITransform)) === null || _a === void 0 ? void 0 : _a.anchorX)) : popup.width;
-        const H = popup.pivotAsAnchor ? popup.height * (1 - ((_b = popup.node.getComponent(UITransform)) === null || _b === void 0 ? void 0 : _b.anchorY)) : popup.height;
-        if (pos.x + W > this.width)
-            pos.x = pos.x + sizeW - W;
+        if (pos.x + popup.width > this.width)
+            pos.x = pos.x + sizeW - popup.width;
         pos.y += sizeH;
-        if (((dir === undefined || dir === PopupDirection.Auto) && pos.y + H > this.height)
+        if (((dir === undefined || dir === PopupDirection.Auto) && pos.y + popup.height > this.height)
             || dir === false || dir === PopupDirection.Up) {
-            pos.y = pos.y - sizeH - H - 1;
+            pos.y = pos.y - sizeH - popup.height - 1;
             if (pos.y < 0) {
                 pos.y = 0;
                 pos.x += sizeW / 2;
