@@ -1,4 +1,4 @@
-import { director, Color, view, Vec2, AudioClip, View, AudioSourceComponent, Event, Node } from "cc";
+import { director, Color, view, Vec2, AudioClip, View, AudioSourceComponent, Event, Node, UITransform } from "cc";
 import { EDITOR } from "cc/env";
 import { InputProcessor } from "./event/InputProcessor";
 import { RelationType, PopupDirection } from "./FieldTypes";
@@ -212,12 +212,15 @@ export class GRoot extends GComponent {
             pos = this.globalToLocal(pos.x, pos.y);
         }
 
-        if (pos.x + popup.width > this.width)
-            pos.x = pos.x + sizeW - popup.width;
+        const W = popup.pivotAsAnchor ? popup.width * (1 - popup.node.getComponent(UITransform)?.anchorX) : popup.width;
+        const H = popup.pivotAsAnchor ? popup.height * (1 - popup.node.getComponent(UITransform)?.anchorY) : popup.height;
+        if (pos.x + W > this.width)
+            pos.x = pos.x + sizeW - W;
         pos.y += sizeH;
-        if (((dir === undefined || dir === PopupDirection.Auto) && pos.y + popup.height > this.height)
+        if (((dir === undefined || dir === PopupDirection.Auto) && pos.y + H > this.height)
+
             || dir === false || dir === PopupDirection.Up) {
-            pos.y = pos.y - sizeH - popup.height - 1;
+            pos.y = pos.y - sizeH - H - 1;
             if (pos.y < 0) {
                 pos.y = 0;
                 pos.x += sizeW / 2;

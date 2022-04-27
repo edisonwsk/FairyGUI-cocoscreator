@@ -24,7 +24,6 @@ export class Window extends GComponent {
     private _modal: boolean;
 
     private _uiSources?: Array<IUISource>;
-    private _inited?: boolean;
     private _loading?: boolean;
 
     protected _requestingCmd: number = 0;
@@ -229,14 +228,6 @@ export class Window extends GComponent {
             this._init();
     }
 
-    protected onInit(): void {
-    }
-
-    protected onShown(): void {
-    }
-
-    protected onHide(): void {
-    }
 
     protected doShowAnimation(): void {
         this.onShown();
@@ -278,7 +269,9 @@ export class Window extends GComponent {
     }
 
     protected onEnable(): void {
-        super.onEnable();
+        let cnt: number = this._transitions.length;
+        for (let i: number = 0; i < cnt; ++i)
+            this._transitions[i].onEnable();
 
         if (!this._inited)
             this.init();
@@ -287,7 +280,9 @@ export class Window extends GComponent {
     }
 
     protected onDisable(): void {
-        super.onDisable();
+        let cnt: number = this._transitions.length;
+        for (let i: number = 0; i < cnt; ++i)
+            this._transitions[i].onDisable();
 
         this.closeModalWait();
         this.onHide();

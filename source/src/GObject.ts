@@ -78,6 +78,7 @@ export class GObject {
     public _uiOpacity: UIOpacity;
 
     private _hitTestPt?: Vec2;
+    protected _inited?: boolean;
 
     public constructor() {
         this._node = new Node();
@@ -654,13 +655,33 @@ export class GObject {
         }
     }
 
+    public init(): void {
+        this._inited = true;
+        this.onInit();
+    }
+
+    protected onInit(): void {
+    }
+
+    protected onShown(): void {
+    }
+
+    protected onHide(): void {
+    }
+
     protected onEnable() {
+        if (!this._inited) {
+            this._inited = true
+            this.init();
+        }
+        this.onShown();
     }
 
     protected onDisable() {
+        this.onHide();
     }
 
-    protected onUpdate() {
+    protected onUpdate(dt?:number) {
     }
 
     protected onDestroy() {

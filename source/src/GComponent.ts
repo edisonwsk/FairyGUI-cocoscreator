@@ -1258,12 +1258,14 @@ export class GComponent extends GObject {
     }
 
     protected onEnable(): void {
+        super.onEnable();
         let cnt: number = this._transitions.length;
         for (let i: number = 0; i < cnt; ++i)
             this._transitions[i].onEnable();
     }
 
     protected onDisable(): void {
+        super.onDisable();
         let cnt: number = this._transitions.length;
         for (let i: number = 0; i < cnt; ++i)
             this._transitions[i].onDisable();
