@@ -9,7 +9,7 @@ namespace fgui {
             if (!_root) {
                 _root = new cc.Node("[TweenManager]");
                 cc.game["addPersistRootNode"](_root);
-                cc.director.getScheduler().schedule(TweenManager.update, _root, 0, false);
+                cc.director.getScheduler().schedule(TweenManager.update, _root, 0, cc.macro.REPEAT_FOREVER, 0, false);
             }
 
             var tweener: GTweener;

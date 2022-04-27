@@ -214,7 +214,7 @@ namespace fgui {
 
             if (ti.target && ti.target.node) {
                 if (ti.target instanceof GRichTextField)
-                    ti.target.node.getComponent(cc.RichText)["_onTouchEnded"](evt2);
+                    ti.target.node.getComponent(cc.RichText)["_onTouchEnded"](<any>evt2);
 
                 evt2.unuse();
                 evt2.type = Event.TOUCH_END;
@@ -272,17 +272,17 @@ namespace fgui {
             ti.button = -1;
         }
 
-        private mouseDownHandler(evt: cc.Event.EventMouse) {
+        private mouseDownHandler(evt: cc.EventMouse) {
             let ti = this.getInfo(0, true);
             ti.button = evt.getButton();
         }
 
-        private mouseUpHandler(evt: cc.Event.EventMouse) {
+        private mouseUpHandler(evt: cc.EventMouse) {
             let ti = this.getInfo(0, true);
             ti.button = evt.getButton();
         }
 
-        private mouseMoveHandler(evt: cc.Event.EventMouse) {
+        private mouseMoveHandler(evt: cc.EventMouse) {
             let ti = this.getInfo(0, false);
             if (ti
                 && Math.abs(ti.pos.x - evt.getLocationX()) < 1
@@ -318,7 +318,7 @@ namespace fgui {
             }
         }
 
-        private mouseWheelHandler(evt: cc.Event.EventMouse) {
+        private mouseWheelHandler(evt: cc.EventMouse) {
             let ti = this.updateInfo(0, evt.getLocation());
             ti.mouseWheelDelta = Math.max(evt.getScrollX(), evt.getScrollY());
 
@@ -328,7 +328,7 @@ namespace fgui {
         }
 
         private updateInfo(touchId: number, pos: cc.Vec2, touch?: cc.Touch): TouchInfo {
-            let camera = cc.Camera.findCamera(this.node);
+            let camera = cc.director.root!.batcher2D.getFirstRenderCamera(this.node);
             if (camera)
                 camera.getScreenToWorldPoint(pos, this._touchPos);
             else
@@ -341,7 +341,7 @@ namespace fgui {
             let ti = this.getInfo(touchId);
             ti.target = target;
             ti.pos.set(this._touchPos);
-            ti.button = cc.Event.EventMouse.BUTTON_LEFT;
+            ti.button = cc.EventMouse.BUTTON_LEFT;
             ti.touch = touch;
 
             return ti;

@@ -36,7 +36,7 @@ namespace fgui {
             this._alignOffset = new cc.Vec2();
 
             this._container = new cc.Node("Container");
-            this._container.setAnchorPoint(0, 1);
+            this._container.getComponent(cc.UITransform)?.setAnchorPoint(0, 1);
             this._node.addChild(this._container);
         }
 
@@ -588,9 +588,8 @@ namespace fgui {
 
         public setMask(value: GObject, inverted: boolean): void {
             if (this._maskContent) {
-                this._maskContent.node.off(cc.Node.EventType.POSITION_CHANGED, this.onMaskContentChanged, this);
+                this._maskContent.node.off(cc.Node.EventType.TRANSFORM_CHANGED, this.onMaskContentChanged, this);
                 this._maskContent.node.off(cc.Node.EventType.SIZE_CHANGED, this.onMaskContentChanged, this);
-                this._maskContent.node.off(cc.Node.EventType.SCALE_CHANGED, this.onMaskContentChanged, this);
                 this._maskContent.node.off(cc.Node.EventType.ANCHOR_CHANGED, this.onMaskContentChanged, this);
                 this._maskContent.visible = true;
             }
@@ -611,9 +610,8 @@ namespace fgui {
                 }
 
                 value.visible = false;
-                value.node.on(cc.Node.EventType.POSITION_CHANGED, this.onMaskContentChanged, this);
+                value.node.on(cc.Node.EventType.TRANSFORM_CHANGED, this.onMaskContentChanged, this);
                 value.node.on(cc.Node.EventType.SIZE_CHANGED, this.onMaskContentChanged, this);
-                value.node.on(cc.Node.EventType.SCALE_CHANGED, this.onMaskContentChanged, this);
                 value.node.on(cc.Node.EventType.ANCHOR_CHANGED, this.onMaskContentChanged, this);
 
                 this._customMask.inverted = inverted;
@@ -661,15 +659,19 @@ namespace fgui {
 
         private onMaskContentChanged() {
             let maskNode: cc.Node = this._customMask.node;
+            let maskUITrans: cc.UITransform = maskNode.getComponent(cc.UITransform);
+
             let contentNode: cc.Node = this._maskContent.node;
-            let w: number = contentNode.width * contentNode.scaleX;
-            let h: number = contentNode.height * contentNode.scaleY;
+            let contentUITrans: cc.UITransform = this._maskContent._uiTrans;
 
-            maskNode.setContentSize(w, h);
+            let w: number = this._maskContent.width * this._maskContent.scaleX;
+            let h: number = this._maskContent.height * this._maskContent.scaleY;
 
-            let left: number = contentNode.x - contentNode.anchorX * w;
-            let top: number = contentNode.y - contentNode.anchorY * h;
-            maskNode.setAnchorPoint(-left / maskNode.width, -top / maskNode.height);
+            maskUITrans.setContentSize(w, h);
+
+            let left: number = contentNode.position.x - contentUITrans.anchorX * w;
+            let top: number = contentNode.position.y - contentUITrans.anchorY * h;
+            maskUITrans.setAnchorPoint(-left / maskUITrans.width, -top / maskUITrans.height);
 
             maskNode.setPosition(this._pivotCorrectX, this._pivotCorrectY);
         }

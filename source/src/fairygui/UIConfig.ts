@@ -1,4 +1,3 @@
-
 namespace fgui {
 
     export class UIConfig {
@@ -62,11 +61,8 @@ namespace fgui {
 
         public static linkUnderline: boolean = true;
 
-        /** !#en
-		Default group name of UI node.<br/>
-		!#zh
-		UI节点默认的分组。<br/>*/
-        public static defaultUIGroup: string = "UI";
+        //Default group name of UI node.<br/>
+        public static defaultUILayer: number = cc.Layers.Enum.UI_2D;
     }
 
     //let _flag: boolean = false;

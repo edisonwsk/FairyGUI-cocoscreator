@@ -53,6 +53,8 @@ namespace fgui {
         public _touchDisabled?: boolean;
         public _partner: GObjectPartner;
         public _treeNode?: GTreeNode;
+        public _uiTrans: cc.UITransform;
+    public _uiOpacity: cc.UIOpacity;
 
         private _hitTestPt?: cc.Vec2;
 
@@ -62,20 +64,12 @@ namespace fgui {
 
         public constructor() {
             this._node = new cc.Node();
-            if (GObject._defaultGroupIndex == -1) {
-                GObject._defaultGroupIndex = 0;
-                let groups: Array<string> = (<any>cc.game).groupList;
-                let cnt = groups.length;
-                for (let i = 0; i < cnt; i++) {
-                    if (groups[i].toLowerCase() == UIConfig.defaultUIGroup.toLowerCase()) {
-                        GObject._defaultGroupIndex = i;
-                        break;
-                    }
-                }
-            }
+            this._uiTrans = this._node.addComponent(cc.UITransform);
+            this._uiOpacity = this.node.addComponent(cc.UIOpacity);
+            
             this._node["$gobj"] = this;
-            this._node.groupIndex = GObject._defaultGroupIndex;
-            this._node.setAnchorPoint(0, 1);
+            this._node.layer = UIConfig.defaultUILayer;
+            this._uiTrans.setAnchorPoint(0, 1);
             this._node.on(cc.Node.EventType.ANCHOR_CHANGED, this.handleAnchorChanged, this);
 
             this._id = this._node.uuid;
@@ -142,23 +136,23 @@ namespace fgui {
         }
 
         public get xMin(): number {
-            return this._pivotAsAnchor ? (this._x - this._width * this.node.anchorX) : this._x;
+            return this._pivotAsAnchor ? (this._x - this._width * this._uiTrans.anchorX) : this._x;
         }
 
         public set xMin(value: number) {
             if (this._pivotAsAnchor)
-                this.setPosition(value + this._width * this.node.anchorX, this._y);
+                this.setPosition(value + this._width * this._uiTrans.anchorX, this._y);
             else
                 this.setPosition(value, this._y);
         }
 
         public get yMin(): number {
-            return this._pivotAsAnchor ? (this._y - this._height * (1 - this.node.anchorY)) : this._y;
+            return this._pivotAsAnchor ? (this._y - this._height * (1 - this._uiTrans.anchorY)) : this._y;
         }
 
         public set yMin(value: number) {
             if (this._pivotAsAnchor)
-                this.setPosition(this._x, value + this._height * (1 - this.node.anchorY));
+                this.setPosition(this._x, value + this._height * (1 - this._uiTrans.anchorY));
             else
                 this.setPosition(this._x, value);
         }
@@ -228,8 +222,8 @@ namespace fgui {
                 this._height = hv;
 
                 this.handleSizeChanged();
-                if ((this.node.anchorX != 0 || this.node.anchorY != 1) && !this._pivotAsAnchor && !ignorePivot)
-                    this.setPosition(this.x - this.node.anchorX * dWidth, this.y - (1 - this.node.anchorY) * dHeight);
+                if ((this._uiTrans.anchorX != 0 || this._uiTrans.anchorY != 1) && !this._pivotAsAnchor && !ignorePivot)
+                    this.setPosition(this.x - this._uiTrans.anchorX * dWidth, this.y - (1 - this._uiTrans.anchorY) * dHeight);
                 else
                     this.handlePositionChanged();
 
@@ -257,31 +251,31 @@ namespace fgui {
         }
 
         public get actualWidth(): number {
-            return this.width * Math.abs(this._node.scaleX);
+            return this.width * Math.abs(this._node.scale.x);
         }
 
         public get actualHeight(): number {
-            return this.height * Math.abs(this._node.scaleY);
+            return this.height * Math.abs(this._node.scale.y);
         }
 
         public get scaleX(): number {
-            return this._node.scaleX;
+            return this._node.scale.x;
         }
 
         public set scaleX(value: number) {
-            this.setScale(value, this._node.scaleY);
+            this.setScale(value, this._node.scale.y);
         }
 
         public get scaleY(): number {
-            return this._node.scaleY;
+            return this._node.scale.y;
         }
 
         public set scaleY(value: number) {
-            this.setScale(this._node.scaleX, value);
+            this.setScale(this._node.scale.x, value);
         }
 
         public setScale(sx: number, sy: number) {
-            if (this._node.scaleX != sx || this._node.scaleY != sy) {
+            if (this._node.scale.x != sx || this._node.scale.y != sy) {
                 this._node.setScale(sx, sy);
 
                 this.updateGear(2);
