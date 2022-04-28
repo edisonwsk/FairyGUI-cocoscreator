@@ -1,4 +1,4 @@
-import { director, Color, Vec2, View, AudioSourceComponent } from "cc";
+import { director, Color, Vec2, View, AudioSourceComponent, UITransform } from "cc";
 import { EDITOR } from "cc/env";
 import { InputProcessor } from "./event/InputProcessor";
 import { RelationType, PopupDirection } from "./FieldTypes";
@@ -149,6 +149,7 @@ export class GRoot extends GComponent {
         return this._modalWaitPane && this._modalWaitPane.node.activeInHierarchy;
     }
     getPopupPosition(popup, target, dir, result) {
+        var _a, _b;
         let pos = result || new Vec2();
         var sizeW = 0, sizeH = 0;
         if (target) {
@@ -161,12 +162,14 @@ export class GRoot extends GComponent {
             pos = this.getTouchPosition();
             pos = this.globalToLocal(pos.x, pos.y);
         }
-        if (pos.x + popup.width > this.width)
-            pos.x = pos.x + sizeW - popup.width;
+        const W = popup.pivotAsAnchor ? popup.width * (1 - ((_a = popup.node.getComponent(UITransform)) === null || _a === void 0 ? void 0 : _a.anchorX)) : popup.width;
+        const H = popup.pivotAsAnchor ? popup.height * (1 - ((_b = popup.node.getComponent(UITransform)) === null || _b === void 0 ? void 0 : _b.anchorY)) : popup.height;
+        if (pos.x + W > this.width)
+            pos.x = pos.x + sizeW - W;
         pos.y += sizeH;
-        if (((dir === undefined || dir === PopupDirection.Auto) && pos.y + popup.height > this.height)
+        if (((dir === undefined || dir === PopupDirection.Auto) && pos.y + H > this.height)
             || dir === false || dir === PopupDirection.Up) {
-            pos.y = pos.y - sizeH - popup.height - 1;
+            pos.y = pos.y - sizeH - H - 1;
             if (pos.y < 0) {
                 pos.y = 0;
                 pos.x += sizeW / 2;

@@ -1013,11 +1013,13 @@ export class GComponent extends GObject {
         }
     }
     onEnable() {
+        super.onEnable();
         let cnt = this._transitions.length;
         for (let i = 0; i < cnt; ++i)
             this._transitions[i].onEnable();
     }
     onDisable() {
+        super.onDisable();
         let cnt = this._transitions.length;
         for (let i = 0; i < cnt; ++i)
             this._transitions[i].onDisable();

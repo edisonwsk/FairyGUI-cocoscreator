@@ -15,7 +15,6 @@ export declare class Window extends GComponent {
     private _frame;
     private _modal;
     private _uiSources?;
-    private _inited?;
     private _loading?;
     protected _requestingCmd: number;
     bringToFontOnClick: boolean;
@@ -46,9 +45,6 @@ export declare class Window extends GComponent {
     closeModalWait(requestingCmd?: number): boolean;
     get modalWaiting(): boolean;
     init(): void;
-    protected onInit(): void;
-    protected onShown(): void;
-    protected onHide(): void;
     protected doShowAnimation(): void;
     protected doHideAnimation(): void;
     private __uiLoadComplete;

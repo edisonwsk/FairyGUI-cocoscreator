@@ -168,12 +168,6 @@ export class Window extends GComponent {
         else
             this._init();
     }
-    onInit() {
-    }
-    onShown() {
-    }
-    onHide() {
-    }
     doShowAnimation() {
         this.onShown();
     }
@@ -205,14 +199,18 @@ export class Window extends GComponent {
         this.hide();
     }
     onEnable() {
-        super.onEnable();
+        let cnt = this._transitions.length;
+        for (let i = 0; i < cnt; ++i)
+            this._transitions[i].onEnable();
         if (!this._inited)
             this.init();
         else
             this.doShowAnimation();
     }
     onDisable() {
-        super.onDisable();
+        let cnt = this._transitions.length;
+        for (let i = 0; i < cnt; ++i)
+            this._transitions[i].onDisable();
         this.closeModalWait();
         this.onHide();
     }

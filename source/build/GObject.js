@@ -493,11 +493,27 @@ export class GObject {
                 gear.dispose();
         }
     }
+    init() {
+        this._inited = true;
+        this.onInit();
+    }
+    onInit() {
+    }
+    onShown() {
+    }
+    onHide() {
+    }
     onEnable() {
+        if (!this._inited) {
+            this._inited = true;
+            this.init();
+        }
+        this.onShown();
     }
     onDisable() {
+        this.onHide();
     }
-    onUpdate() {
+    onUpdate(dt) {
     }
     onDestroy() {
     }

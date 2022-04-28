@@ -62,6 +62,7 @@ export declare class GObject {
     _uiTrans: UITransform;
     _uiOpacity: UIOpacity;
     private _hitTestPt?;
+    protected _inited?: boolean;
     constructor();
     get id(): string;
     get name(): string;
@@ -150,9 +151,13 @@ export declare class GObject {
     get treeNode(): GTreeNode;
     get isDisposed(): boolean;
     dispose(): void;
+    init(): void;
+    protected onInit(): void;
+    protected onShown(): void;
+    protected onHide(): void;
     protected onEnable(): void;
     protected onDisable(): void;
-    protected onUpdate(): void;
+    protected onUpdate(dt?: number): void;
     protected onDestroy(): void;
     onClick(listener: Function, target?: any): void;
     onceClick(listener: Function, target?: any): void;
